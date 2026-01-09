@@ -1,34 +1,27 @@
 // -*- mode: jsonc -*-
 {
-  // "layer": "top", // Waybar at top layer
-  // "position": "bottom", // Waybar position (top|bottom|left|right)
-  "height": 40, // Waybar height (to be removed for auto height)
-  // "width": 1280, // Waybar width
-  "spacing": 4, // Gaps between modules (4px)
-  // Choose the order of the modules
   "margin": "5 5 0 5",
   "modules-left": [
     "sway/workspaces",
     "sway/mode",
-    "sway/scratchpad",
     "custom/media"
   ],
   "modules-center": [
-    "clock",
-    "sway/language"
-  ],
-  "modules-right": [
-    "tray",
-    "mpd",
+    "custom/recording",
     "pulseaudio",
+    "custom/microphone",
     "backlight",
-    "bluetooth",
     "cpu",
     "memory",
     "temperature",
     "keyboard-state",
-    "battery",
-    "battery#bat2",
+    "battery"
+  ],
+  "modules-right": [
+    "tray",
+    "bluetooth",
+    "sway/language",
+    "clock",
     "power-profiles-daemon"
   ],
   // Modules configuration
@@ -55,7 +48,8 @@
     }
   },
   "sway/mode": {
-    "format": "<span style=\"italic\">{}</span>"
+    "format": "<span style=\"italic\">{}</span>",
+    "tooltip-format": "Режим Sway: {}"
   },
   "sway/scratchpad": {
     "format": "{icon} {count}",
@@ -66,39 +60,6 @@
     ],
     "tooltip": true,
     "tooltip-format": "{app}: {title}"
-  },
-  "mpd": {
-    "format": "{stateIcon} {consumeIcon}{randomIcon}{repeatIcon}{singleIcon}{artist} - {album} - {title} ({elapsedTime:%M:%S}/{totalTime:%M:%S}) ⸨{songPosition}|{queueLength}⸩ {volume}% ",
-    "format-disconnected": "Disconnected ",
-    "format-stopped": "{consumeIcon}{randomIcon}{repeatIcon}{singleIcon}Stopped ",
-    "unknown-tag": "N/A",
-    "interval": 5,
-    "consume-icons": {
-      "on": " "
-    },
-    "random-icons": {
-      "off": "<span color=\"#f53c3c\"></span> ",
-      "on": " "
-    },
-    "repeat-icons": {
-      "on": " "
-    },
-    "single-icons": {
-      "on": "1 "
-    },
-    "state-icons": {
-      "paused": "",
-      "playing": ""
-    },
-    "tooltip-format": "MPD (connected)",
-    "tooltip-format-disconnected": "MPD (disconnected)"
-  },
-  "idle_inhibitor": {
-    "format": "{icon}",
-    "format-icons": {
-      "activated": "",
-      "deactivated": ""
-    }
   },
   "tray": {
     "icon-size": 22,
@@ -115,7 +76,7 @@
     "on-click": "blueberry"
   },
   "clock": {
-    "locgale": "ru_RU.UTF-8",
+    "locale": "ru_RU.UTF-8",
     "timezone": "Europe/Moscow",
     "interval": 1,
     "format": "{:%H:%M  %a %d}",
@@ -129,25 +90,30 @@
   },
   "cpu": {
     "format": "{usage}% ",
-    "tooltip": false
+    "tooltip": true,
+    "tooltip-format": "Использование CPU: {usage}%\nЯдер: {cores}",
+    "interval": 2
   },
   "memory": {
-    "format": "{}% "
+    "format": "{percentage}% \uF538",
+    "tooltip": true,
+    "tooltip-format": "RAM: {used:0.2f}G / {total:0.2f}G\n({percentage}%)",
+    "interval": 5
   },
   "temperature": {
-    // "thermal-zone": 2,
-    // "hwmon-path": "/sys/class/hwmon/hwmon2/temp1_input",
     "critical-threshold": 80,
-    // "format-critical": "{temperatureC}°C {icon}",
     "format": "{temperatureC}°C {icon}",
+    "format-critical": "{temperatureC}°C {icon}",
+    "tooltip": true,
+    "tooltip-format": "Температура: {temperatureC}°C",
     "format-icons": [
       "",
       "",
       ""
-    ]
+    ],
+    "interval": 5
   },
   "backlight": {
-    // "device": "acpi_video1",
     "format": "{percent}% {icon}",
     "format-icons": [
       "",
@@ -159,11 +125,14 @@
       "",
       "",
       ""
-    ]
+    ],
+    "on-scroll-up": "brightnessctl s +5%",
+    "on-scroll-down": "brightnessctl s 5-%",
+    "tooltip": true,
+    "tooltip-format": "Яркость: {percent}%"
   },
   "battery": {
     "states": {
-      // "good": 95,
       "warning": 30,
       "critical": 15
     },
@@ -172,8 +141,19 @@
     "format-charging": "{capacity}% ",
     "format-plugged": "{capacity}% ",
     "format-alt": "{time} {icon}",
-    // "format-good": "", // An empty format will hide the module
-    // "format-full": "",
+    "format-icons": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "tooltip": true,
+    "tooltip-format": "{time}\n{power}W"
+  },
+  "battery#bat2": {
+    "bat": "BAT2",
+    "format": "{capacity}% {icon}",
     "format-icons": [
       "",
       "",
@@ -181,9 +161,6 @@
       "",
       ""
     ]
-  },
-  "battery#bat2": {
-    "bat": "BAT2"
   },
   "power-profiles-daemon": {
     "format": "{icon}",
@@ -194,16 +171,15 @@
       "performance": "",
       "balanced": "",
       "power-saver": ""
-    }
+    },
+    "on-click": "powerprofilesctl set performance",
+    "on-click-right": "powerprofilesctl set power-saver"
   },
   "pulseaudio": {
-    // "scroll-step": 1, // %, can be a float
-    "format": " {volume}% {icon}     |{format_source}",
-    "format-bluetooth": " {volume}% {icon}      |{format_source}",
-    "format-bluetooth-muted": "  {icon}    |{format_source}",
-    "format-muted": " {format_source}",
-    "format-source": "  {volume}%  ",
-    "format-source-muted": "     ",
+    "format": "{volume}% {icon}",
+    "format-bluetooth": "{volume}% {icon}",
+    "format-bluetooth-muted": " {icon}",
+    "format-muted": "",
     "format-icons": {
       "headphone": "",
       "hands-free": "",
@@ -217,33 +193,55 @@
         ""
       ]
     },
-    "on-click": "pavucontrol"
+    "on-click": "pavucontrol",
+    "on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +5%",
+    "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -5%",
+    "tooltip": true,
+    "tooltip-format": "Громкость: {volume}%"
+  },
+  "custom/microphone": {
+    "exec": "$HOME/.config/waybar/scripts/microphone.sh",
+    "interval": 2,
+    "return-type": "json",
+    "format": "{}",
+    "format-muted": "{}",
+    "on-click": "pavucontrol --tab=3",
+    "on-scroll-up": "pactl set-source-volume @DEFAULT_SOURCE@ +5%",
+    "on-scroll-down": "pactl set-source-volume @DEFAULT_SOURCE@ -5%",
+    "tooltip": true,
+    "tooltip-format": "{alt}"
   },
   "custom/media": {
-    "format": "{icon} {text}",
+    "format": "{text}",
     "return-type": "json",
     "max-length": 40,
-    "format-icons": {
-      "spotify": "",
-      "default": "🎜"
-    },
     "escape": true,
-    "exec": "$HOME/.config/waybar/mediaplayer.py 2> /dev/null" // Script in resources folder
-    // "exec": "$HOME/.config/waybar/mediaplayer.py --player spotify 2> /dev/null" // Filter player based on name
-  },
-  "custom/power": {
-    "format": "⏻ ",
-    "tooltip": false,
-    "menu": "on-click",
-    "menu-file": "$HOME/.config/waybar/power_menu.xml", // Menu file in resources folder
-    "menu-actions": {
-      "shutdown": "shutdown",
-      "reboot": "reboot",
-      "suspend": "systemctl suspend",
-      "hibernate": "systemctl hibernate"
-    }
+    "exec": "$HOME/.config/waybar/scripts/media.sh",
+    "interval": 2,
+    "on-click": "playerctl play-pause",
+    "on-click-right": "playerctl next"
   },
   "sway/language": {
-    "format": "{short}"
+    "format": "{short}",
+    "tooltip-format": "Раскладка: {short}"
+  },
+  "custom/recording": {
+    "format": "{text}",
+    "return-type": "json",
+    "exec": "$HOME/.config/waybar/scripts/recording-indicator.sh",
+    "interval": 1,
+    "on-click": "pkill -f wf-recorder"
+  },
+  "network": {
+    "format-wifi": "󰖩 {essid}",
+    "format-ethernet": "󰈀 {ipaddr}",
+    "format-linked": "󰖩 {ifname} (No IP)",
+    "format-disconnected": "󰖪 Disconnected",
+    "format-alt": "{ifname}: {ipaddr}/{cidr}",
+    "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ipaddr}",
+    "tooltip-format-ethernet": "{ifname}: {ipaddr}\n{gwaddr}",
+    "tooltip-format-disconnected": "Отключено",
+    "on-click": "nm-connection-editor",
+    "interval": 2
   }
 }

@@ -1,288 +1,476 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════
+ * WAYBAR STYLE - УНИФИЦИРОВАННАЯ ВЕРСИЯ
+ * ════════════════════════════════════════════════════════════════════
+ * Описание:
+ *   - Унифицированный стиль для всех модулей Waybar
+ *   - Группировка цветов, размеров и поведений
+ *   - Поддержка мигания для языка RU и модуля записи
+ *   - Использование @define-color только для цветов (ограничение GTK)
+ *
+ * Версия: 1.3
+ * Последнее изменение: рефакторинг с @define-color только для цветов
+ *
+ * Примечание: @define-color работает только для цветов, поэтому размеры и отступы
+ * задаются явно, но группируются по назначению
+ */
+
+/******************************************************************************/
+/**
+ * [ГЛОБАЛЬНЫЕ ОПРЕДЕЛЕНИЯ ЦВЕТОВ - @define-color]
+ * Все цвета собраны здесь для централизованного управления цветовой схемой
+ *
+ * ПРИМЕНЕНИЕ:
+ * - @define-color используется ТОЛЬКО для цветов (ограничение GTK CSS)
+ * - Все модули используют эти переменные для согласованности
+ * - Изменение цвета здесь применяется ко всем модулям автоматически
+ */
+
+/****************************** СЕМАНТИЧЕСКИЕ ЦВЕТА ******************************/
+
+/* Base - фоновые цвета */
+@define-color base-bg rgba(18, 18, 26, 1);
+@define-color base-surface rgba(39, 39, 58, 1);
+@define-color transparent rgba(0, 0, 0, 0);
+
+/* Text - цвета текста */
+@define-color text-primary rgba(153, 209, 219, 1);
+@define-color text-secondary rgba(176, 176, 184, 1);
+@define-color text-disabled rgba(102, 102, 114, 1);
+
+/* Accent - акцентные цвета для фокуса и активности */
+@define-color accent-main rgba(126, 219, 71, 1);
+@define-color accent-soft rgba(198, 255, 146, 1);
+@define-color accent-peak rgba(0, 255, 0, 1);
+
+/* State - цвета состояний (success / warning / error) */
+@define-color state-success rgba(200, 255, 200, 1);
+@define-color state-success-text rgba(150, 224, 150, 1);
+@define-color state-warning rgba(255, 216, 168, 1);
+@define-color state-warning-text rgba(255, 184, 112, 1);
+@define-color state-error rgba(255, 182, 182, 1);
+@define-color state-error-text rgba(255, 122, 122, 1);
+
+/* Utility - вспомогательные цвета (границы, hover, selection) */
+@define-color ui-border rgba(68, 71, 90, 0.4);
+@define-color ui-border-focus rgba(126, 219, 71, 1);
+@define-color ui-background-focus-20 rgba(126, 219, 71, 0.2);
+@define-color ui-hover rgba(68, 71, 90, 0.7);
+@define-color ui-selection rgba(68, 71, 90, 1);
+
+
+/******************************************************************************/
+/**
+ * [ГЛОБАЛЬНЫЕ СТИЛИ]
+ * Применяются ко всей панели Waybar и общим элементам
+ */
+
 * {
-  font-family: FontAwesome, Roboto, Helvetica, Arial, sans-serif;
+	font-family: 'FontAwesome', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+	min-height: 35px;
+	font-size: 16px;
 }
 
+/* Фон панели с эффектом матового стекла */
 window#waybar {
-  background-color: rgba(255, 255, 255, 0);
+	background-color: @transparent;
+	-gtk-icon-effect: none;
+	margin-top: 5px;
+	margin-bottom: 5px;
 }
 
+/* Стилизация кнопок */
 button {
-  border-radius: 9px;
+	border-radius: 9px;
+	padding: 0 8px;
 }
 
-#workspaces button {
-  background: rgba(39,39,58,1);
-  color: rgba(248,248,242,1);
-  padding: 0 10px;
-  margin: 0 2px;
-  border: 1px solid rgba(68,71,90,0.2);
-  font-size: 18px;
+/******************************************************************************/
+/**
+ * [АНИМАЦИИ]
+ * Определения ключевых кадров для анимаций
+ */
+
+/* Анимация мигания для критической батареи */
+@keyframes blink {
+	to {
+		background-color: @text-primary;
+		color: @base-bg;
+	}
 }
 
-#workspaces button:hover {
-  background: rgba(0, 255, 0, 0.3);
+/* Анимация пульсации для русского языка и записи */
+@keyframes accent-pulse {
+	0% {
+		background-color: @accent-main;
+	}
+	50% {
+		background-color: @accent-peak;
+	}
+	100% {
+		background-color: @accent-main;
+	}
 }
 
-#workspaces button.focused {
-  border: 1px solid rgba(0, 255, 0, 1);
-  font-size: 24px;
+/* Анимация срочных workspace */
+@keyframes urgent-blink {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0.5;
+	}
 }
 
-#workspaces button.focused.empty {
-  color: rgba(176,176,184,1);
-}
+/******************************************************************************/
+/**
+ * [БФЗОВЫЙ СТИЛЬ МОДУЛЕЙ]
+ * Общий стиль для всех модулей Waybar
+ * Наследуют базовый стиль .module
+ */
 
-#workspaces button:not(.focused):not(.empty) {
-  color: rgba(248,248,242,1);
-}
-
-#workspaces button.empty:not(.focused) {
-  color: rgba(102,102,114,0.4);
-}
-
-#workspaces button.empty:hover {
-  background: rgba(0, 255, 0, 0.3);
-}
-
-#workspaces button.urgent {
-  background-color: #eb4d4b;
-}
-
-#pulseaudio:hover {
-  background-color: #a37800;
-}
-
-#mode {
-  background-color: #64727D;
-}
-
+.module,
 #clock,
 #battery,
 #cpu,
 #memory,
-#disk,
 #bluetooth,
 #temperature,
 #backlight,
 #network,
 #pulseaudio,
-#wireplumber,
+#custom-microphone,
 #custom-media,
 #tray,
 #mode,
 #idle_inhibitor,
 #scratchpad,
 #language,
-#power-profiles-daemon,
-#mpd {
-  border-radius: 9px;
-  margin: 3px 1px;
-  padding: 0 10px;
-  color: rgba(248,248,242,1);
-  background-color: rgba(39,39,58,1);
-  font-size: 18px;
-}
-
-#bluetooth {
-}
-
-#battery {
-  padding-right: 15px;
-}
-
-#battery.charging, #battery.plugged {
-  color: rgba(198,255,146,1);
-}
-
-@keyframes blink {
-to {
-  background-color: #ffffff;
-  color: #000000;
-}
-}
-
-/* Using steps() instead of linear as a timing function to limit cpu usage */
-#battery.critical:not(.charging) {
-  background-color: rgba(255,182,182,1);
-  color: rgba(255,122,122,1);
-  animation-name: blink;
-  animation-duration: 0.5s;
-  animation-timing-function: steps(12);
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-
+#keyboard-state,
+#custom-recording,
+#privacy,
+#workspaces button,
 #power-profiles-daemon {
-  padding-right: 15px;
+    background: @base-surface;
+	border-radius: 9px;
+	margin: 4px 3px;
+	padding: 2px 8px;
+	color: @text-primary;
+	background-color: @base-surface;
+	min-height: 20px;
+	min-width: 20px;
+	border: 1px solid @ui-border;
+	transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-#power-profiles-daemon.performance {
-  color: rgba(0,255,0,1);
+/******************************************************************************/
+/**
+ * [ИНДИВИДУАЛЬНЫЕ СТИЛИ МОДУЛЕЙ]
+ * Уникальные настройки для конкретных модулей
+ */
+
+/* Часы - увеличенный шрифт */
+#clock {
+	color: @text-primary;
+	font-size: 20px;
+	font-weight: 900;
 }
 
-#power-profiles-daemon.balanced {
-  color: rgba(255,216,168,1);
+/* Bluetooth - использует стандартные цвета, без брендовых оттенков */
+
+/* Температура */
+#temperature.critical {
+	background-color: @state-error;
+	color: @text-primary;
 }
 
-#power-profiles-daemon.power-saver {
-  color: rgba(176,224,255,1);
-}
+/* Яркость */
 
-label:focus {
-  background-color: #000000;
-}
-
-#cpu {
-}
-
-#memory {
-}
-
-#disk {
-}
-
-#backlight {
-}
-
+/* Сеть */
 #network {
+	color: @text-primary;
 }
 
 #network.disconnected {
+	color: @state-error-text;
 }
 
-#pulseaudio {
+/* Батарея */
+#battery {
+	padding-right: 15px;
+}
 
+#battery.charging,
+#battery.plugged {
+	color: @accent-soft;
+}
+
+#battery.critical:not(.charging) {
+	background-color: @state-error;
+	color: @state-error-text;
+	animation-name: blink;
+	animation-duration: 0.5s;
+	animation-timing-function: steps(12);
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+}
+
+/* Профили питания */
+#power-profiles-daemon {
+	padding-right: 15px;
+	color: @state-warning-text;
+}
+
+#power-profiles-daemon.performance {
+	color: @accent-main;
+	background-color: @ui-background-focus-20;
+}
+
+#power-profiles-daemon.balanced {
+	color: @state-warning-text;
+}
+
+#power-profiles-daemon.power-saver {
+	color: @accent-soft;
+}
+
+/* Звук */
+#pulseaudio {
 }
 
 #pulseaudio.muted {
-  color: rgba(255,182,182,1);
+	color: @state-error;
 }
 
-#wireplumber {
-
+/* Микрофон */
+#custom-microphone {
+	padding: 0 12px;
 }
 
-#wireplumber.muted {
-  color: rgba(255,182,182,1);
+#custom-microphone.muted {
+	color: @state-error;
 }
 
+/* Медиа плеер */
 #custom-media {
-  color: rgba(255,184,112,1);
-  min-width: 100px;
+	color: @text-primary;
+	padding: 2px 12px;
+	margin: 4px 3px;
 }
 
-#custom-media.custom-spotify {
-  background-color: #66cc99;
+#custom-media.custom-spotify,
+#custom-media.custom-vlc,
+#custom-media.custom-firefox {
+	background-color: @base-surface;
 }
 
-#custom-media.custom-vlc {
-  background-color: #ffa000;
+/* Индикатор состояния клавиатуры */
+#keyboard-state {
+	background: @base-surface;
+	color: @text-primary;
+	min-width: 30px;
 }
 
-#temperature {
+#keyboard-state > label {
+	padding: 0 5px;
 }
 
-#temperature.critical {
-  background-color: rgba(255,122,122,1);
+#keyboard-state > label.locked {
+	background: @ui-hover;
 }
 
+/* Язык раскладки */
+#language {
+	font-weight: bold;
+	font-size: 20px;
+}
+
+/* Русский язык - мигает как запись */
+#language.ru {
+	background: @accent-main;
+	border: 2px solid @accent-peak;
+	color: @state-error-text;
+	animation: accent-pulse 1.6s ease-in-out infinite;
+}
+
+#language.us {
+}
+
+/* Режим Sway */
+#mode {
+	background-color: @base-surface;
+}
+
+/* Scratchpad */
+#scratchpad {
+	background: @ui-hover;
+}
+
+#scratchpad.empty {
+	background-color: rgba(0, 0, 0, 0);
+}
+
+/* Ингибитор блокировки экрана */
+#idle_inhibitor {
+	background-color: @base-surface;
+}
+
+#idle_inhibitor.activated {
+	background-color: @text-primary;
+	color: @base-surface;
+}
+
+/* Трей (иконки в системном лотке) */
 #tray {
 }
 
 #tray > .passive {
-  -gtk-icon-effect: dim;
+	-gtk-icon-effect: dim;
 }
 
 #tray > .needs-attention {
-  -gtk-icon-effect: highlight;
-  background-color: #eb4d4b;
+	-gtk-icon-effect: highlight;
+	background-color: @state-error;
 }
 
-#idle_inhibitor {
-  background-color: #2d3436;
+/* Индикатор записи - мигает как русский язык */
+#custom-recording {
+	background: @accent-main;
+	border: 2px solid @accent-peak;
+	color: @text-primary;
+	font-weight: bold;
+	padding: 2px 12px;
+	min-height: 24px;
+	min-width: 24px;
+	animation: accent-pulse 1.6s ease-in-out infinite;
 }
 
-#idle_inhibitor.activated {
-  background-color: #ecf0f1;
-  color: #2d3436;
-}
-
-#mpd {
-  background-color: #66cc99;
-  color: #2a5c45;
-}
-
-#mpd.disconnected {
-  background-color: #f53c3c;
-}
-
-#mpd.stopped {
-  background-color: #90b1b1;
-}
-
-#mpd.paused {
-  background-color: #51a37a;
-}
-
-#keyboard-state {
-  background: #97e1ad;
-  color: #000000;
-  min-width: 16px;
-}
-
-#keyboard-state > label {
-  padding: 0 5px;
-}
-
-#keyboard-state > label.locked {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-#scratchpad {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-#scratchpad.empty {
-  background-color: transparent;
-}
-
+/* Privacy индикаторы */
 #privacy {
-  padding: 0;
+	padding: 0;
 }
 
 #privacy-item {
-  padding: 0 5px;
-  color: white;
+	padding: 0 5px;
+	color: @text-primary;
+	border-radius: 9px;
+	margin: 2px;
 }
 
 #privacy-item.screenshare {
-  background-color: #cf5700;
+	background-color: @state-warning;
 }
 
 #privacy-item.audio-in {
-  background-color: #1ca000;
+	background-color: @state-success;
 }
 
 #privacy-item.audio-out {
-  background-color: #0069d4;
+	background-color: @accent-main;
 }
 
-#language {
-  min-width: 40px;
-  font-size: 20px;
-  font-weight: 900;
+/******************************************************************************/
+/**
+ * [WORKSPACES - РАБОЧИЕ ПРОСТРАНСТВА]
+ * Стилизация кнопок переключения рабочих пространств
+ */
+
+#workspaces {
+    background: @transparent;
+    border: 0px;
+    padding: 0px 0px;
 }
 
-#language.ru {
-  background: rgba(255,122,122,1);
-  border: 3px solid rgba(0,255,0,1);
+#workspaces button {
+	margin: 0 3px;
+	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-#language.us {
-  color: rgba(248,248,242,1);
+#workspaces button:first-child {
+	margin-left: 0;
 }
 
-#clock {
-  font-size: 20px;
-  font-weight: 900;
+#workspaces button:last-child {
+	margin-right: 0;
+}
+
+#workspaces button:hover {
+	background: @ui-hover;
+	border-color: @accent-soft;
+}
+
+#workspaces button.focused {
+	border: 1px solid @ui-border-focus;
+	background: @ui-background-focus-20;
+	min-height: 24px;
+}
+
+#workspaces button.focused.empty {
+	color: @text-secondary;
+}
+
+#workspaces button:not(.focused):not(.empty) {
+	color: @text-primary;
+}
+
+#workspaces button.empty:not(.focused) {
+	color: @text-disabled;
+}
+
+#workspaces button.empty:hover {
+	background: @ui-hover;
+}
+
+#workspaces button.urgent {
+	background-color: @state-error;
+	animation: urgent-blink 1s ease-in-out infinite;
+}
+
+/******************************************************************************/
+/**
+ * [HOVER ЭФФЕКТЫ]
+ * Общие стили при наведении курсора на модули
+ */
+
+#clock:hover,
+#battery:hover,
+#cpu:hover,
+#memory:hover,
+#bluetooth:hover,
+#temperature:hover,
+#backlight:hover,
+#network:hover,
+#pulseaudio:hover,
+#custom-microphone:hover,
+#custom-media:hover,
+#power-profiles-daemon:hover,
+#keyboard-state:hover,
+#custom-recording:hover,
+#language:hover {
+	background-color: @ui-hover;
+	border-color: @accent-soft;
+}
+
+/******************************************************************************/
+/**
+ * [TOOLTIP - ВСПЛЫВАЮЩИЕ ПОДСКАЗКИ]
+ * Стилизация всплывающих подсказок при наведении
+ */
+
+tooltip {
+	border-radius: 9px;
+	background-color: @base-surface;
+	padding: 12px 16px;
+	font-size: 16px;
+	border: 1px solid @accent-soft;
+	color: @text-primary;
+}
+
+tooltip label {
+	padding: 5px;
+	color: @text-primary;
+}
+
+label:focus {
+	background-color: @ui-hover;
 }
