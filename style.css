@@ -1,0 +1,288 @@
+* {
+  font-family: FontAwesome, Roboto, Helvetica, Arial, sans-serif;
+}
+
+window#waybar {
+  background-color: rgba(255, 255, 255, 0);
+}
+
+button {
+  border-radius: 9px;
+}
+
+#workspaces button {
+  background: rgba(39,39,58,1);
+  color: rgba(248,248,242,1);
+  padding: 0 10px;
+  margin: 0 2px;
+  border: 1px solid rgba(68,71,90,0.2);
+  font-size: 18px;
+}
+
+#workspaces button:hover {
+  background: rgba(0, 255, 0, 0.3);
+}
+
+#workspaces button.focused {
+  border: 1px solid rgba(0, 255, 0, 1);
+  font-size: 24px;
+}
+
+#workspaces button.focused.empty {
+  color: rgba(176,176,184,1);
+}
+
+#workspaces button:not(.focused):not(.empty) {
+  color: rgba(248,248,242,1);
+}
+
+#workspaces button.empty:not(.focused) {
+  color: rgba(102,102,114,0.4);
+}
+
+#workspaces button.empty:hover {
+  background: rgba(0, 255, 0, 0.3);
+}
+
+#workspaces button.urgent {
+  background-color: #eb4d4b;
+}
+
+#pulseaudio:hover {
+  background-color: #a37800;
+}
+
+#mode {
+  background-color: #64727D;
+}
+
+#clock,
+#battery,
+#cpu,
+#memory,
+#disk,
+#bluetooth,
+#temperature,
+#backlight,
+#network,
+#pulseaudio,
+#wireplumber,
+#custom-media,
+#tray,
+#mode,
+#idle_inhibitor,
+#scratchpad,
+#language,
+#power-profiles-daemon,
+#mpd {
+  border-radius: 9px;
+  margin: 3px 1px;
+  padding: 0 10px;
+  color: rgba(248,248,242,1);
+  background-color: rgba(39,39,58,1);
+  font-size: 18px;
+}
+
+#bluetooth {
+}
+
+#battery {
+  padding-right: 15px;
+}
+
+#battery.charging, #battery.plugged {
+  color: rgba(198,255,146,1);
+}
+
+@keyframes blink {
+to {
+  background-color: #ffffff;
+  color: #000000;
+}
+}
+
+/* Using steps() instead of linear as a timing function to limit cpu usage */
+#battery.critical:not(.charging) {
+  background-color: rgba(255,182,182,1);
+  color: rgba(255,122,122,1);
+  animation-name: blink;
+  animation-duration: 0.5s;
+  animation-timing-function: steps(12);
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+#power-profiles-daemon {
+  padding-right: 15px;
+}
+
+#power-profiles-daemon.performance {
+  color: rgba(0,255,0,1);
+}
+
+#power-profiles-daemon.balanced {
+  color: rgba(255,216,168,1);
+}
+
+#power-profiles-daemon.power-saver {
+  color: rgba(176,224,255,1);
+}
+
+label:focus {
+  background-color: #000000;
+}
+
+#cpu {
+}
+
+#memory {
+}
+
+#disk {
+}
+
+#backlight {
+}
+
+#network {
+}
+
+#network.disconnected {
+}
+
+#pulseaudio {
+
+}
+
+#pulseaudio.muted {
+  color: rgba(255,182,182,1);
+}
+
+#wireplumber {
+
+}
+
+#wireplumber.muted {
+  color: rgba(255,182,182,1);
+}
+
+#custom-media {
+  color: rgba(255,184,112,1);
+  min-width: 100px;
+}
+
+#custom-media.custom-spotify {
+  background-color: #66cc99;
+}
+
+#custom-media.custom-vlc {
+  background-color: #ffa000;
+}
+
+#temperature {
+}
+
+#temperature.critical {
+  background-color: rgba(255,122,122,1);
+}
+
+#tray {
+}
+
+#tray > .passive {
+  -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+  -gtk-icon-effect: highlight;
+  background-color: #eb4d4b;
+}
+
+#idle_inhibitor {
+  background-color: #2d3436;
+}
+
+#idle_inhibitor.activated {
+  background-color: #ecf0f1;
+  color: #2d3436;
+}
+
+#mpd {
+  background-color: #66cc99;
+  color: #2a5c45;
+}
+
+#mpd.disconnected {
+  background-color: #f53c3c;
+}
+
+#mpd.stopped {
+  background-color: #90b1b1;
+}
+
+#mpd.paused {
+  background-color: #51a37a;
+}
+
+#keyboard-state {
+  background: #97e1ad;
+  color: #000000;
+  min-width: 16px;
+}
+
+#keyboard-state > label {
+  padding: 0 5px;
+}
+
+#keyboard-state > label.locked {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+#scratchpad {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+#scratchpad.empty {
+  background-color: transparent;
+}
+
+#privacy {
+  padding: 0;
+}
+
+#privacy-item {
+  padding: 0 5px;
+  color: white;
+}
+
+#privacy-item.screenshare {
+  background-color: #cf5700;
+}
+
+#privacy-item.audio-in {
+  background-color: #1ca000;
+}
+
+#privacy-item.audio-out {
+  background-color: #0069d4;
+}
+
+#language {
+  min-width: 40px;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+#language.ru {
+  background: rgba(255,122,122,1);
+  border: 3px solid rgba(0,255,0,1);
+}
+
+#language.us {
+  color: rgba(248,248,242,1);
+}
+
+#clock {
+  font-size: 20px;
+  font-weight: 900;
+}
