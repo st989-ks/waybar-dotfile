@@ -37,6 +37,7 @@
 @define-color text-primary rgba(153, 209, 219, 1);
 @define-color text-secondary rgba(176, 176, 184, 1);
 @define-color text-disabled rgba(102, 102, 114, 1);
+@define-color text-error rgba(255, 122, 122, 1);
 
 /* Accent - акцентные цвета для фокуса и активности */
 @define-color accent-main rgba(126, 219, 71, 1);
@@ -49,7 +50,6 @@
 @define-color state-warning rgba(255, 216, 168, 1);
 @define-color state-warning-text rgba(255, 184, 112, 1);
 @define-color state-error rgba(255, 182, 182, 1);
-@define-color state-error-text rgba(255, 122, 122, 1);
 
 /* Utility - вспомогательные цвета (границы, hover, selection) */
 @define-color ui-border rgba(68, 71, 90, 0.4);
@@ -181,7 +181,8 @@ button {
 /* Температура */
 #temperature.critical {
 	background-color: @state-error;
-	color: @text-primary;
+	font-size: 20px;
+    color: @text-error;
 }
 
 /* Яркость */
@@ -192,7 +193,7 @@ button {
 }
 
 #network.disconnected {
-	color: @state-error-text;
+	color: @text-error;
 }
 
 /* Батарея */
@@ -207,7 +208,7 @@ button {
 
 #battery.critical:not(.charging) {
 	background-color: @state-error;
-	color: @state-error-text;
+	color: @text-error;
 	animation-name: blink;
 	animation-duration: 0.5s;
 	animation-timing-function: steps(12);
@@ -289,7 +290,7 @@ button {
 #language.ru {
 	background: @accent-main;
 	border: 2px solid @accent-peak;
-	color: @state-error-text;
+	color: @text-error;
 	animation: accent-pulse 1.6s ease-in-out infinite;
 }
 
@@ -337,7 +338,7 @@ button {
 #custom-recording {
 	background: @accent-main;
 	border: 2px solid @accent-peak;
-	color: @text-primary;
+	color: @text-error;
 	font-weight: bold;
 	padding: 2px 12px;
 	min-height: 24px;
