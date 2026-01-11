@@ -38,11 +38,15 @@
 @define-color text-secondary rgba(176, 176, 184, 1);
 @define-color text-disabled rgba(102, 102, 114, 1);
 @define-color text-error rgba(255, 122, 122, 1);
+@define-color text-on-accent rgba(245, 248, 250, 0.95);
+@define-color text-on-error rgba(255, 255, 255, 0.95);
 
 /* Accent - акцентные цвета для фокуса и активности */
 @define-color accent-main rgba(126, 219, 71, 1);
 @define-color accent-soft rgba(198, 255, 146, 1);
 @define-color accent-peak rgba(0, 255, 0, 1);
+@define-color accent-warning rgba(255, 184, 112, 1);
+@define-color accent-warning-soft rgba(255, 184, 112, 0.25);
 
 /* State - цвета состояний (success / warning / error) */
 @define-color state-success rgba(200, 255, 200, 1);
@@ -93,9 +97,11 @@ button {
 
 /* Анимация мигания для критической батареи */
 @keyframes blink {
+	from {
+		opacity: 1;
+	}
 	to {
-		background-color: @text-primary;
-		color: @base-bg;
+		opacity: 0.65;
 	}
 }
 
@@ -113,12 +119,12 @@ button {
 }
 
 /* Анимация срочных workspace */
-@keyframes urgent-blink {
+@keyframes urgent-pulse {
 	from {
-		opacity: 1;
+		box-shadow: 0 0 0 rgba(255, 184, 112, 0.0);
 	}
 	to {
-		opacity: 0.5;
+		box-shadow: 0 0 10px rgba(255, 184, 112, 0.65);
 	}
 }
 
@@ -173,7 +179,7 @@ button {
 #clock {
 	color: @text-primary;
 	font-size: 20px;
-	font-weight: 900;
+	font-weight: bold;
 }
 
 /* Bluetooth - использует стандартные цвета, без брендовых оттенков */
@@ -208,8 +214,10 @@ button {
 
 #battery.critical:not(.charging) {
 	background-color: @state-error;
-	color: @text-error;
-	animation-name: blink;
+    color: @text-on-error;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    animation-name: blink;
 	animation-duration: 0.5s;
 	animation-timing-function: steps(12);
 	animation-iteration-count: infinite;
@@ -288,9 +296,11 @@ button {
 
 /* Русский язык - мигает как запись */
 #language.ru {
-	background: @accent-main;
+	background-color: @accent-main;
 	border: 2px solid @accent-peak;
-	color: @text-error;
+	color: @text-on-accent;
+	font-weight: bold;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
 	animation: accent-pulse 1.6s ease-in-out infinite;
 }
 
@@ -338,7 +348,8 @@ button {
 #custom-recording {
 	background: @accent-main;
 	border: 2px solid @accent-peak;
-	color: @text-error;
+	color: @text-on-accent;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
 	font-weight: bold;
 	padding: 2px 12px;
 	min-height: 24px;
@@ -423,8 +434,12 @@ button {
 }
 
 #workspaces button.urgent {
-	background-color: @state-error;
-	animation: urgent-blink 1s ease-in-out infinite;
+	background-color: @base-surface;
+	color: @text-on-accent;
+	font-weight: 700;
+	border: 1px solid @accent-warning;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+	animation: urgent-pulse 1.4s ease-in-out infinite alternate;
 }
 
 /******************************************************************************/
