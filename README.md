@@ -1,5 +1,7 @@
 # Waybar Configuration — Практическое руководство
 
+🇬🇧 **English version:** [README_EN.md](README_EN.md)
+
 ## Обзор
 
 ![](screenshot-2026-01-11-230654.png)
