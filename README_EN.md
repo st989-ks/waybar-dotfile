@@ -2,7 +2,7 @@
 
 🇷🇺 **Русская версия:** [README.md](README.md)
 
-![](screenshot-2026-01-11-230654.png)
+![](screenshot-2026-01-12-133123.png)
 
 This is a fully developed Waybar configuration for Sway Wayland compositor. This guide describes not only the final result, but also the approach to creation, style architecture, typical errors and solutions.
 
