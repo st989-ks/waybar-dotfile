@@ -88,43 +88,61 @@
 /* Base — фоновые цвета */
 @define-color base-bg rgba(18, 18, 26, 1);
 @define-color base-surface rgba(39, 39, 58, 1);
-@define-color base-overlay rgba(15, 15, 23, 0.4);
+@define-color transparent rgba(0, 0, 0, 0);
 
 /* Text — цвета текста */
-@define-color text-primary rgba(248, 248, 242, 1);
+@define-color text-primary rgba(153, 209, 219, 1);
 @define-color text-secondary rgba(176, 176, 184, 1);
 @define-color text-disabled rgba(102, 102, 114, 1);
+@define-color text-error rgba(255, 122, 122, 1);
+@define-color text-on-accent rgba(245, 248, 250, 0.95);
+@define-color text-on-error rgba(255, 255, 255, 0.95);
+@define-color text-shadow rgba(0, 0, 0, 0.45);
 
 /* Accent — акцентные цвета */
 @define-color accent-main rgba(126, 219, 71, 1);
 @define-color accent-soft rgba(198, 255, 146, 1);
 @define-color accent-peak rgba(0, 255, 0, 1);
+@define-color accent-warning rgba(255, 184, 112, 1);
+@define-color accent-warning-soft rgba(255, 184, 112, 0.25);
 
 /* State — цвета состояний */
 @define-color state-success rgba(200, 255, 200, 1);
+@define-color state-success-text rgba(150, 224, 150, 1);
 @define-color state-warning rgba(255, 216, 168, 1);
+@define-color state-warning-text rgba(255, 184, 112, 1);
 @define-color state-error rgba(255, 182, 182, 1);
 
 /* Utility — вспомогательные цвета */
 @define-color ui-border rgba(68, 71, 90, 0.4);
+@define-color ui-border-focus rgba(126, 219, 71, 1);
+@define-color ui-background-focus-20 rgba(126, 219, 71, 0.2);
 @define-color ui-hover rgba(68, 71, 90, 0.7);
 ```
 
 ### Использование
 
 | Цвет | Применение |
-|------|------------|
+|-------|------------|
 | `@base-surface` | Фон всех модулей |
-| `@text-primary` | Основной текст |
+| `@transparent` | Прозрачный фон (панель Waybar) |
+| `@text-primary` | Основной текст (голубоватый оттенок) |
 | `@text-secondary` | Вторичный текст (пустые workspaces) |
 | `@text-disabled` | Неактивные элементы |
+| `@text-error` | Текст ошибок |
+| `@text-on-accent` | Текст на акцентном фоне |
+| `@text-on-error` | Текст на фоне ошибки |
+| `@text-shadow` | Тень для текста (глубина) |
 | `@accent-main` | Фокус, активное состояние |
 | `@accent-soft` | Hover, мягкое выделение |
 | `@accent-peak` | Критические индикаторы (пульсация) |
+| `@accent-warning` | Предупреждающие индикаторы |
 | `@state-success` | Успешное состояние |
 | `@state-warning` | Предупреждение |
 | `@state-error` | Ошибка, критическое состояние |
 | `@ui-border` | Границы модулей |
+| `@ui-border-focus` | Граница при фокусе |
+| `@ui-background-focus-20` | Фон фокусного элемента (20% прозрачности) |
 | `@ui-hover` | Hover фон |
 
 ### Практический пример
@@ -136,21 +154,22 @@
 }
 
 #network.disconnected {
-    color: @state-error-text;  /* Ошибка связи */
+    color: @text-error;  /* Ошибка связи */
 }
 
-/* Workspace */
+/* Workspace с акцентным фоном */
 #workspaces button.focused {
     border: 1px solid @ui-border-focus;
-    background: rgba(126, 219, 71, 0.2);  /* Мягкий акцент */
-    box-shadow: 0 0 8px rgba(126, 219, 71, 0.35);
+    background: @ui-background-focus-20;
+    text-shadow: 0 1px 2px @text-shadow;
 }
 
-/* Критический индикатор */
+/* Критический индикатор с inset пульсацией */
 #language.ru {
-    background: @accent-main;
-    border: 2px solid @accent-peak;
-    animation: accent-pulse 1.6s ease-in-out infinite;
+    border: 2px solid @accent-warning;
+    color: @accent-peak;
+    text-shadow: 0 1px 2px @text-shadow;
+    animation: warning-pulse-inset 1.4s ease-in-out infinite alternate;
 }
 ```
 
@@ -380,25 +399,73 @@ fi
 
 ### Pulse для критических индикаторов
 
-Мягкая пульсация вместо резкого мигания:
+Мягкая пульсация с inset box-shadow вместо изменения фона:
 
 ```css
-@keyframes accent-pulse {
-    0%   { background-color: @accent-main; }
-    50%  { background-color: @accent-peak; }
-    100% { background-color: @accent-main; }
+@keyframes warning-pulse-inset {
+    from {
+        box-shadow: inset 0 0 0 @accent-warning;
+    }
+    to {
+        box-shadow: inset 0 0 12px @accent-warning;
+    }
 }
 
 #language.ru,
 #custom-recording {
-    background: @accent-main;
-    border: 2px solid @accent-peak;
-    color: @text-primary;
-    animation: accent-pulse 1.6s ease-in-out infinite;
+    border: 2px solid @accent-warning;
+    color: @accent-peak;
+    text-shadow: 0 1px 2px @text-shadow;
+    animation: warning-pulse-inset 1.4s ease-in-out infinite alternate;
 }
 ```
 
-### Увеличенный интервал (1.6s вместо 1.5s) для мягкости
+### Pulse для urgent workspaces
+
+Внутренняя пульсация для срочных workspace:
+
+```css
+@keyframes urgent-pulse-inset {
+    from {
+        box-shadow: inset 0 0 0 @accent-peak;
+    }
+    to {
+        box-shadow: inset 0 0 12px @accent-peak;
+    }
+}
+
+#workspaces button.urgent {
+    background-color: @base-surface;
+    color: @text-on-accent;
+    font-weight: 700;
+    text-shadow: 0 1px 2px @text-shadow;
+    animation: urgent-pulse-inset 1.4s ease-in-out infinite alternate;
+}
+```
+
+### Blink для критической батареи
+
+Плавное изменение прозрачности вместо резкого мигания:
+
+```css
+@keyframes blink {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0.65;
+    }
+}
+
+#battery.critical:not(.charging) {
+    color: @text-error;
+    font-weight: bold;
+    text-shadow: 0 1px 2px @text-shadow;
+    animation: blink 0.5s steps(12) infinite alternate;
+}
+```
+
+### Интервал (1.4s) и inset эффект для мягкости
 
 ---
 

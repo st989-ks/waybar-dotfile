@@ -86,25 +86,35 @@ All modules inherit base style `.module`:
 /* Base — background colors */
 @define-color base-bg rgba(18, 18, 26, 1);
 @define-color base-surface rgba(39, 39, 58, 1);
-@define-color base-overlay rgba(15, 15, 23, 0.4);
+@define-color transparent rgba(0, 0, 0, 0);
 
 /* Text — text colors */
-@define-color text-primary rgba(248, 248, 242, 1);
+@define-color text-primary rgba(153, 209, 219, 1);
 @define-color text-secondary rgba(176, 176, 184, 1);
 @define-color text-disabled rgba(102, 102, 114, 1);
+@define-color text-error rgba(255, 122, 122, 1);
+@define-color text-on-accent rgba(245, 248, 250, 0.95);
+@define-color text-on-error rgba(255, 255, 255, 0.95);
+@define-color text-shadow rgba(0, 0, 0, 0.45);
 
 /* Accent — accent colors */
 @define-color accent-main rgba(126, 219, 71, 1);
 @define-color accent-soft rgba(198, 255, 146, 1);
 @define-color accent-peak rgba(0, 255, 0, 1);
+@define-color accent-warning rgba(255, 184, 112, 1);
+@define-color accent-warning-soft rgba(255, 184, 112, 0.25);
 
 /* State — state colors */
 @define-color state-success rgba(200, 255, 200, 1);
+@define-color state-success-text rgba(150, 224, 150, 1);
 @define-color state-warning rgba(255, 216, 168, 1);
+@define-color state-warning-text rgba(255, 184, 112, 1);
 @define-color state-error rgba(255, 182, 182, 1);
 
 /* Utility — helper colors */
 @define-color ui-border rgba(68, 71, 90, 0.4);
+@define-color ui-border-focus rgba(126, 219, 71, 1);
+@define-color ui-background-focus-20 rgba(126, 219, 71, 0.2);
 @define-color ui-hover rgba(68, 71, 90, 0.7);
 ```
 
@@ -113,16 +123,24 @@ All modules inherit base style `.module`:
 | Color | Application |
 |-------|-------------|
 | `@base-surface` | Background of all modules |
-| `@text-primary` | Main text |
+| `@transparent` | Transparent background (Waybar panel) |
+| `@text-primary` | Main text (bluish shade) |
 | `@text-secondary` | Secondary text (empty workspaces) |
 | `@text-disabled` | Inactive elements |
+| `@text-error` | Error text |
+| `@text-on-accent` | Text on accent background |
+| `@text-on-error` | Text on error background |
+| `@text-shadow` | Text shadow (depth) |
 | `@accent-main` | Focus, active state |
 | `@accent-soft` | Hover, soft highlight |
 | `@accent-peak` | Critical indicators (pulsation) |
+| `@accent-warning` | Warning indicators |
 | `@state-success` | Successful state |
 | `@state-warning` | Warning |
 | `@state-error` | Error, critical state |
 | `@ui-border` | Module borders |
+| `@ui-border-focus` | Border on focus |
+| `@ui-background-focus-20` | Focused element background (20% transparency) |
 | `@ui-hover` | Hover background |
 
 ### Practical Example
@@ -140,15 +158,16 @@ All modules inherit base style `.module`:
 /* Workspace */
 #workspaces button.focused {
     border: 1px solid @ui-border-focus;
-    background: rgba(126, 219, 71, 0.2);  /* Soft accent */
-    box-shadow: 0 0 8px rgba(126, 219, 71, 0.35);
+    background: @ui-background-focus-20;
+    text-shadow: 0 1px 2px @text-shadow;
 }
 
-/* Critical indicator */
+/* Critical indicator with inset pulsation */
 #language.ru {
-    background: @accent-main;
-    border: 2px solid @accent-peak;
-    animation: accent-pulse 1.6s ease-in-out infinite;
+    border: 2px solid @accent-warning;
+    color: @accent-peak;
+    text-shadow: 0 1px 2px @text-shadow;
+    animation: warning-pulse-inset 1.4s ease-in-out infinite alternate;
 }
 ```
 
@@ -378,25 +397,73 @@ fi
 
 ### Pulse for Critical Indicators
 
-Soft pulsation instead of harsh blinking:
+Soft pulsation with inset box-shadow instead of background change:
 
 ```css
-@keyframes accent-pulse {
-    0%   { background-color: @accent-main; }
-    50%  { background-color: @accent-peak; }
-    100% { background-color: @accent-main; }
+@keyframes warning-pulse-inset {
+    from {
+        box-shadow: inset 0 0 0 @accent-warning;
+    }
+    to {
+        box-shadow: inset 0 0 12px @accent-warning;
+    }
 }
 
 #language.ru,
 #custom-recording {
-    background: @accent-main;
-    border: 2px solid @accent-peak;
-    color: @text-primary;
-    animation: accent-pulse 1.6s ease-in-out infinite;
+    border: 2px solid @accent-warning;
+    color: @accent-peak;
+    text-shadow: 0 1px 2px @text-shadow;
+    animation: warning-pulse-inset 1.4s ease-in-out infinite alternate;
 }
 ```
 
-### Increased interval (1.6s instead of 1.5s) for softness
+### Pulse for Urgent Workspaces
+
+Inset pulsation for urgent workspaces:
+
+```css
+@keyframes urgent-pulse-inset {
+    from {
+        box-shadow: inset 0 0 0 @accent-peak;
+    }
+    to {
+        box-shadow: inset 0 0 12px @accent-peak;
+    }
+}
+
+#workspaces button.urgent {
+    background-color: @base-surface;
+    color: @text-on-accent;
+    font-weight: 700;
+    text-shadow: 0 1px 2px @text-shadow;
+    animation: urgent-pulse-inset 1.4s ease-in-out infinite alternate;
+}
+```
+
+### Blink for Critical Battery
+
+Smooth opacity change instead of harsh blinking:
+
+```css
+@keyframes blink {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0.65;
+    }
+}
+
+#battery.critical:not(.charging) {
+    color: @text-error;
+    font-weight: bold;
+    text-shadow: 0 1px 2px @text-shadow;
+    animation: blink 0.5s steps(12) infinite alternate;
+}
+```
+
+### Interval (1.4s) and inset effect for softness
 
 ---
 
