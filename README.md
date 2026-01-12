@@ -292,6 +292,56 @@ fi
 - `alt` — текст для tooltip (важно!)
 - `tooltip` — полный tooltip (опционально)
 
+### Оптимизация скриптов
+
+**Проблема:** Скрипт `media.sh` может существенно нагружать процессор при частом запуске (по умолчанию Waybar вызывает скрипты каждые 2 секунды). Несмотря на оптимизацию с кешированием и throttling, проблема сохраняется при активном воспроизведении.
+
+**Текущая оптимизация в media.sh:**
+- Кеширование в `~/.cache/waybar/waybar-media.json` — быстрый ответ
+- Проверка интервала — не чаще 5 секунд между запросами
+- Сравнение состояния — выход если ничего не изменилось
+
+**Рекомендации для дальнейшей оптимизации:**
+
+1. **Использовать systemd пользовательский сервис с событиями**
+   ```bash
+   # ~/.config/systemd/user/waybar-media-monitor.service
+   [Unit]
+   Description=Waybar Media Monitor
+
+   [Service]
+   ExecStart=/usr/bin/playerctl --follow metadata --format '...'
+   ExecStartPost=/bin/sh -c 'echo "%s" > ~/.cache/waybar/waybar-media.json'
+   Restart=always
+   ```
+   Скрипт Waybar будет только читать кеш, а демону обрабатывать события.
+
+2. **Использовать playerctl --follow для event-driven подхода**
+   ```bash
+   # Запускать фоновый процесс один раз
+   playerctl --follow metadata -f '...' | while read -r line; do
+       echo "$line" > "$CACHE"
+   done &
+   # В самом скрипте только cat "$CACHE"
+   ```
+
+3. **Увеличить интервал запуска в config.jsonc**
+   ```jsonc
+   "custom/media": {
+       "exec": "~/.config/waybar/scripts/media.sh",
+       "interval": 10,  /* Увеличить с 2 до 10 */
+       "return-type": "json"
+   }
+   ```
+
+4. **Альтернатива — Python с asyncio + mpris**
+   ```python
+   # Использовать библиотеку mpris для прослушивания D-Bus событий
+   # Полностью event-driven, нулевая нагрузка CPU при простое
+   ```
+
+**Наиболее эффективное решение:** вариант 1 или 2 — event-driven подход с демоном, который обновляет кеш только при реальных изменениях плеера, а не по таймеру.
+
 ### microphone.sh
 
 ```bash

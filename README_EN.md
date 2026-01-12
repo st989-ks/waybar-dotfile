@@ -290,6 +290,56 @@ All scripts should return JSON with fields:
 - `alt` — text for tooltip (important!)
 - `tooltip` — full tooltip (optional)
 
+### Script Optimization
+
+**Problem:** The `media.sh` script can significantly load the CPU when running frequently (by default, Waybar calls scripts every 2 seconds). Despite optimization with caching and throttling, the problem persists during active playback.
+
+**Current optimization in media.sh:**
+- Caching in `~/.cache/waybar/waybar-media.json` — fast response
+- Interval check — no more than once every 5 seconds
+- State comparison — exit if nothing changed
+
+**Recommendations for further optimization:**
+
+1. **Use systemd user service with events**
+   ```bash
+   # ~/.config/systemd/user/waybar-media-monitor.service
+   [Unit]
+   Description=Waybar Media Monitor
+
+   [Service]
+   ExecStart=/usr/bin/playerctl --follow metadata --format '...'
+   ExecStartPost=/bin/sh -c 'echo "%s" > ~/.cache/waybar/waybar-media.json'
+   Restart=always
+   ```
+   The Waybar script will only read the cache, while the daemon handles events.
+
+2. **Use playerctl --follow for event-driven approach**
+   ```bash
+   # Start background process once
+   playerctl --follow metadata -f '...' | while read -r line; do
+       echo "$line" > "$CACHE"
+   done &
+   # In the script itself, just cat "$CACHE"
+   ```
+
+3. **Increase execution interval in config.jsonc**
+   ```jsonc
+   "custom/media": {
+       "exec": "~/.config/waybar/scripts/media.sh",
+       "interval": 10,  /* Increase from 2 to 10 */
+       "return-type": "json"
+   }
+   ```
+
+4. **Alternative — Python with asyncio + mpris**
+   ```python
+   # Use mpris library to listen to D-Bus events
+   # Completely event-driven, zero CPU load when idle
+   ```
+
+**Most effective solution:** option 1 or 2 — event-driven approach with a daemon that updates the cache only on real player changes, not on a timer.
+
 ### microphone.sh
 
 ```bash
