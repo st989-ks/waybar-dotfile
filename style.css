@@ -198,9 +198,9 @@ button {
 
 /* Температура */
 #temperature.critical {
-	background-color: @state-error;
-	font-size: 20px;
     color: @text-error;
+	font-size: 20px;
+    animation: warning-pulse-inset 1.4s ease-in-out infinite alternate;
 }
 
 /* Яркость */
@@ -225,9 +225,8 @@ button {
 }
 
 #battery.critical:not(.charging) {
-    color: @text-on-error;
+    color: @text-error;
     font-weight: bold;
-    text-shadow: 0 1px 2px @text-shadow;
     animation: warning-pulse-inset 1.4s ease-in-out infinite alternate;
 }
 
@@ -322,7 +321,7 @@ button {
 }
 
 #scratchpad.empty {
-	background-color: rgba(0, 0, 0, 0);
+	background-color: @transparent;
 }
 
 /* Ингибитор блокировки экрана */
@@ -411,7 +410,7 @@ button {
 }
 
 #workspaces button.focused {
-	border: 2px solid @accent-peak;
+	border: 1px solid @ui-border-focus;
 	background: @ui-background-focus-20;
 	min-height: 24px;
 }
@@ -436,7 +435,6 @@ button {
 	background-color: @base-surface;
 	color: @text-on-accent;
 	font-weight: 700;
-	text-shadow: 0 1px 2px @text-shadow;
 	animation: urgent-pulse-inset 1.4s ease-in-out infinite alternate;
 }
 
