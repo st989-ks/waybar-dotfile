@@ -40,6 +40,7 @@
 @define-color text-error rgba(255, 122, 122, 1);
 @define-color text-on-accent rgba(245, 248, 250, 0.95);
 @define-color text-on-error rgba(255, 255, 255, 0.95);
+@define-color text-shadow rgba(0, 0, 0, 0.45);
 
 /* Accent - акцентные цвета для фокуса и активности */
 @define-color accent-main rgba(126, 219, 71, 1);
@@ -119,12 +120,22 @@ button {
 }
 
 /* Анимация срочных workspace */
-@keyframes urgent-pulse {
+@keyframes urgent-pulse-inset {
 	from {
-		box-shadow: 0 0 0 rgba(255, 184, 112, 0.0);
+		box-shadow: inset 0 0 0 @accent-peak;
 	}
 	to {
-		box-shadow: 0 0 10px rgba(255, 184, 112, 0.65);
+		box-shadow: inset 0 0 12px @accent-peak;
+	}
+}
+
+/* Анимация с акцентом предупреждения */
+@keyframes warning-pulse-inset {
+	from {
+		box-shadow: inset 0 0 0 @accent-warning;
+	}
+	to {
+		box-shadow: inset 0 0 12px @accent-warning;
 	}
 }
 
@@ -162,6 +173,7 @@ button {
 	margin: 4px 3px;
 	padding: 2px 8px;
 	color: @text-primary;
+	text-shadow: 0 1px 2px @text-shadow;
 	background-color: @base-surface;
 	min-height: 20px;
 	min-width: 20px;
@@ -226,7 +238,6 @@ button {
 
 /* Профили питания */
 #power-profiles-daemon {
-	padding-right: 15px;
 	color: @state-warning-text;
 }
 
@@ -296,12 +307,10 @@ button {
 
 /* Русский язык - мигает как запись */
 #language.ru {
-	background-color: @accent-main;
-	border: 2px solid @accent-peak;
-	color: @text-on-accent;
+	border: 2px solid @accent-warning;
+	color: @accent-peak;
 	font-weight: bold;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
-	animation: accent-pulse 1.6s ease-in-out infinite;
+	animation: warning-pulse-inset 1.4s ease-in-out infinite alternate;
 }
 
 #language.us {
@@ -346,15 +355,10 @@ button {
 
 /* Индикатор записи - мигает как русский язык */
 #custom-recording {
-	background: @accent-main;
-	border: 2px solid @accent-peak;
-	color: @text-on-accent;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+    border: 2px solid @accent-warning;
 	font-weight: bold;
-	padding: 2px 12px;
-	min-height: 24px;
-	min-width: 24px;
-	animation: accent-pulse 1.6s ease-in-out infinite;
+	color: @accent-peak;
+	animation: warning-pulse-inset 1.4s ease-in-out infinite alternate;
 }
 
 /* Privacy индикаторы */
@@ -412,7 +416,7 @@ button {
 }
 
 #workspaces button.focused {
-	border: 1px solid @ui-border-focus;
+	border: 2px solid @accent-peak;
 	background: @ui-background-focus-20;
 	min-height: 24px;
 }
@@ -437,9 +441,8 @@ button {
 	background-color: @base-surface;
 	color: @text-on-accent;
 	font-weight: 700;
-	border: 1px solid @accent-warning;
-	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
-	animation: urgent-pulse 1.4s ease-in-out infinite alternate;
+	text-shadow: 0 1px 2px @text-shadow;
+	animation: urgent-pulse-inset 1.4s ease-in-out infinite alternate;
 }
 
 /******************************************************************************/
