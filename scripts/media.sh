@@ -1,63 +1,55 @@
 #!/bin/bash
+set -euo pipefail
 
-# Get player info
-INFO=$(playerctl -a metadata --format '{{playerName}}|{{status}}|{{artist}}|{{title}}' 2>/dev/null | head -1)
+CACHE="$HOME/.cache/waybar/waybar-media.json"
+STATE="$HOME/.cache/waybar/waybar-media.state"
+TS="$HOME/.cache/waybar/waybar-media.ts"
+DIR="$(dirname "$CACHE")"
+
+mkdir -p "$DIR"
+
+# Если кеш есть — сразу отдаём (дёшево)
+[ -s "$CACHE" ] && cat "$CACHE"
+
+NOW=$(date +%s)
+LAST=$(cat "$TS" 2>/dev/null || echo 0)
+
+# НЕ чаще чем раз в 5 секунд
+[ $((NOW - LAST)) -lt 5 ] && exit 0
+
+echo "$NOW" > "$TS"
+
+INFO="$(playerctl metadata --format '{{playerName}}|{{status}}|{{artist}}|{{title}}' 2>/dev/null || true)"
 
 if [ -z "$INFO" ]; then
-  echo '{"text": "", "tooltip": "", "alt": "stopped", "class": "stopped"}'
-  exit 0
+	JSON='{"text":"","alt":"stopped","class":"stopped"}'
+	echo "$JSON" > "$CACHE"
+	echo "$JSON"
+	exit 0
 fi
 
-# Parse player info
+LAST_INFO="$(cat "$STATE" 2>/dev/null || true)"
+[ "$INFO" = "$LAST_INFO" ] && exit 0
+
 IFS='|' read -r PLAYER STATUS ARTIST TITLE <<< "$INFO"
 
-# Determine player icon
 case "$PLAYER" in
-  vlc)
-    ICON=""
-    ;;
-  firefox)
-    ICON="🦊"
-    ;;
-  *)
-    ICON="🎶"
-    ;;
+	vlc) ICON="" ;;
+	firefox) ICON="🦊" ;;
+	spotify) ICON="" ;;
+	*) ICON="🎶" ;;
 esac
 
-# Determine status icon and text
 case "$STATUS" in
-  Playing)
-    STATUS_ICON="▶️"
-    STATUS_TEXT="PLAY"
-    ALT="playing"
-    ;;
-  Paused)
-    STATUS_ICON="⏸️"
-    STATUS_TEXT="PAUSE"
-    ALT="paused"
-    ;;
-  Stopped)
-    STATUS_ICON="⏹️"
-    STATUS_TEXT="STOP"
-    ALT="stopped"
-    ;;
-  *)
-    STATUS_ICON=""
-    STATUS_TEXT=""
-    ALT="unknown"
-    ;;
+	Playing) TEXT="$ICON ▶" ALT="playing" ;;
+	Paused)  TEXT="$ICON ⏸" ALT="paused" ;;
+	*)       TEXT="$ICON ⏹" ALT="stopped" ;;
 esac
 
-# Build text with icon and status
-if [ -n "$STATUS_TEXT" ]; then
-  # Text with underline and italic
-  TEXT="$ICON $STATUS_TEXT $STATUS_ICON"
-else
-  TEXT="$ICON"
-fi
+TOOLTIP="${ARTIST:+$ARTIST - }$TITLE"
 
-# Build tooltip
-TOOLTIP="$PLAYER: $ARTIST - $TITLE"
+JSON=$(printf '{"text":"%s","tooltip":"%s","alt":"%s","class":"%s"}' \
+	"$TEXT" "$TOOLTIP" "$ALT" "$PLAYER")
 
-# Output JSON
-echo "{\"text\": \"$TEXT\", \"tooltip\": \"$TOOLTIP\", \"alt\": \"$ALT\", \"class\": \"$PLAYER\"}"
+echo "$JSON" > "$CACHE"
+echo "$INFO" > "$STATE"
